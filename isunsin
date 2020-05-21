@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -e
+
+isunsin_dir="$HOME/.isunsin"
+isunsin_config="$isunsin_dir/config"
+
+if [ ! -x /usr/bin/gcc ]; then
+    echo "Info   | Install   | xcode"
+    xcode-select --install
+fi
+
+if [ ! -x /usr/local/bin/git ]; then
+    echo "Info   | Install   | git"
+    brew install git
+fi
+
+if [ ! -d "$isunsin_dir" ]; then
+  mkdir $isunsin_dir
+  touch $isunsin_config
+fi
+
+# ssh setup for git
+ssh_status=0
+ssh-add -l &> /dev/null || ssh_status="$?" 
+if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
+  then
+    echo "Starting ssh-agent"
+    exec /usr/bin/ssh-agent "$0" "$@" "ssh_agent_subprocess=true"
+  else
+    [ "$ssh_status" -gt 0 ] && ssh-add $ssh_key_name && ssh_status="$?"
+    [ "$ssh_status" -gt 0 ] && { echo "There is a problem with your ssh keys, sagwassi does not know how to fix that and exits."; exit $ssh_status; }
+    while read LINE;
+    do
+      cli_sh=$(echo "$LINE" | grep -o 'cli_sh=[^;]*' | cut -f2 -d =)
+      cli_home_var=$(echo "$LINE" | grep -o 'cli_home_var=[^;]*' | cut -f2 -d =)
+      git_url=$(echo "$LINE" | grep -o 'git_url=[^;]*' | cut -f2 -d =)
+      git_branch=$(echo "$LINE" | grep -o 'git_branch=[^;]*' | cut -f2 -d =)
+
+      cli_dir=$isunsin_dir/$(echo "$git_url:$git_branch" | base64 | tr -dc 'a-zA-Z0-9')
+      cli_sh=$cli_dir/$cli_sh
+      if [ -d "$cli_dir" ]; then
+        git -C $cli_dir pull
+        git -C $cli_dir checkout $git_branch
+        git -C $cli_dir pull
+      else
+        git clone "$git_url" "$cli_dir"
+        git -C $cli_dir checkout $git_branch
+      fi
+      cli_args=$(echo "$LINE $cli_home_var=$cli_dir" | tr ";" " ")
+      (pushd "$cli_dir" && "$cli_sh" $cli_args && popd)
+    done < $isunsin_config
+fi
