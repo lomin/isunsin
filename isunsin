@@ -48,6 +48,6 @@ if [ "$ssh_status" -eq 2 ] && [ -z ${ssh_agent_subprocess+x} ];
         git -C $cli_dir checkout $git_branch
       fi
       cli_args=$(echo "$LINE $cli_home_var=$cli_dir" | tr ";" " ")
-      (pushd "$cli_dir" && "$cli_sh" $cli_args && popd)
+      (pushd "$cli_dir" &> /dev/null && "$cli_sh" $cli_args && popd)
     done < $isunsin_config
 fi
