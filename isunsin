@@ -18,6 +18,7 @@ fi
 if [ ! -d "$isunsin_dir" ]; then
   mkdir $isunsin_dir
   touch $isunsin_config
+  echo "created empty $isunsin_config"
 fi
 
 # ssh setup for git
