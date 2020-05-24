@@ -9,8 +9,8 @@ isunsin
 ```
 Edit ~/.isunsin/config, e.g.
 ```
-cli_sh=sagwassi;cli_home_var=sagwassi_dir;git_url=https://github.com/lomin/sagwassi.git;git_branch=master
-cli_sh=sagwassi;cli_home_var=sagwassi_dir;git_url=https://github.com/lomin/sagwassi.git;git_branch=lomin;ansible_skip_tags=sagwassi
+cli_sh=sagwassi;cli_home_var=sagwassi_dir;git_url=https://github.com/lomin/sagwassi.git;git_branch=master;ansible_flags=-vv
+cli_sh=sagwassi;cli_home_var=sagwassi_dir;git_url=https://github.com/lomin/sagwassi.git;git_branch=lomin;ansible_skip_tags=sagwassi;ansible_flags=-vv
 ```
 
 # About
